@@ -29,7 +29,4 @@ avg_size () {
 
 avg_size "/home/nedorezov"
 avg_size "/d/netology-homeworks/netology"
-# avg_size "/tmp/"
-avg_size "/d/netology-homeworks"
-
-
+avg_size "/tmp/"
