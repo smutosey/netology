@@ -3,25 +3,32 @@
 # Считывание параметров реализуйте с помощью read и select.
 # Примечение: постарайтесь максимально защититься от ошибок, т.к. пользователи любят написать строку вместо числа.
 
+ERR_PATTERN="\033[0;31mОшибка: \033[0m"
+
 check () {
-  case $1 in
-    *[!0-9]* | "") #не число или пустая строка
-      echo -e "\tОшибка: Введите число."
-      return 1;;
-    *)
-      return 0;;
-  esac
+  pattern="^[+-]?[0-9]+\.?[0-9]*$"
+  if ! [[ $1 =~ $pattern ]]; then 
+    echo -e "\t $ERR_PATTERN Неправильное число" 
+    return 1
+  fi;
+  return 0
 }
 
 calc () {
   read -p "Введите первое число: " num1
-  check $num1 || return $?
+  check "$num1" || return $?
   read -p "Введите второе число: " num2
-  check $num2 || return $?
+  check "$num2" || return $?
+  if [[ $num2 == 0 ]] && [[ $1 == "/" ]]; then
+    echo -e "\t $ERR_PATTERN Деление на 0" && return 1
+  fi; 
   echo "$num1 $1 $num2 = " $(bc -l <<< "$num1$1$num2")
+  #echo "$num1 $1 $num2 = " $(($num1$1$num2)) # только для целых чисел
 }
 
-PS3="Выберите операцию (по номеру): "
+echo -e "Добро пожаловать в simple_calc.\nВам доступны операции:"
+PS3="
+Выберите операцию: "
 select opt in "+" "-" "*" "/" "Выход"; do 
   case $opt in 
     ("+" | "-" | "*" | "/")
@@ -29,7 +36,7 @@ select opt in "+" "-" "*" "/" "Выход"; do
     "Выход")
       break;;
     *)
-      echo -e "\tОшибка: Неправильный номер операции $REPLY";;
+      echo -e "\t $ERR_PATTERN Неправильный номер операции $REPLY";;
   esac
 done
 
